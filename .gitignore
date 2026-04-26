@@ -1,1 +1,7 @@
 sql_trainee_venv
+*.txt
+/tests/__pycache__/
+Эндпоинты и сценарии.md
+SPEC.md
+pseudocode.md
+TZ.md
