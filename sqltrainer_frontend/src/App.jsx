@@ -1,15 +1,23 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import Editor from "@monaco-editor/react";
-import { LanguageIdEnum } from "monaco-sql-languages";
+import SQLEditor from "./components/SQLEditor";
+import './App.css';
+
 
 function App() {
   return (
-    <Editor
-      height="90vh"
-      defaultLanguage={LanguageIdEnum.MYSQL}
-      defaultValue="-- SELECT * FROM table1;"
-    />
+    <>
+    <div className="problem-condition-container">
+      Условия задачи
+    </div>
+    <div className="editor-and-solution-container">
+    <SQLEditor className="editor-container"/>
+    <div className="problem-solution">
+      Решение
+    </div>
+
+    </div>
+    </>
   );
-}
+};
 export default App;
