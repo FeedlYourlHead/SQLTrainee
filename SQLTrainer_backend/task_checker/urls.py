@@ -8,6 +8,7 @@ router = DefaultRouter()
 router.register(r'users', views.UserViewSet)
 router.register(r'problems', views.TaskViewSet)
 router.register(r'submissions', views.SubmissionViewSet)
+router.register(r'categories', views.CategoryViewSet)
 
 urlpatterns = [
     path('auth/register/', views.RegisterView.as_view(), name='register'),

@@ -2,7 +2,13 @@ from django.contrib.auth.models import User
 from django.db.models import Count, Q
 from rest_framework import viewsets, status, generics
 from rest_framework.decorators import api_view, permission_classes, action
-from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly, IsAdminUser
+
+class IsAdminOrReadOnly(IsAuthenticatedOrReadOnly):
+    def has_permission(self, request, view):
+        if request.method in ('GET', 'HEAD', 'OPTIONS'):
+            return True
+        return request.user and request.user.is_staff
 from rest_framework.response import Response
 
 from .models import Category, Task, Submission
@@ -14,6 +20,7 @@ from .serializers import (
     TaskListSerializer,
     SubmissionSerializer,
     SubmissionCreateSerializer,
+    LeaderboardSerializer,
 )
 from .sql_checker import execute_query, check_query
 
@@ -64,8 +71,9 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
         return Response(serializer.data)
 
 
-class TaskViewSet(viewsets.ReadOnlyModelViewSet):
+class TaskViewSet(viewsets.ModelViewSet):
     queryset = Task.objects.all()
+    permission_classes = [IsAdminOrReadOnly]
 
     def get_serializer_class(self):
         if self.action == 'list':
@@ -84,6 +92,12 @@ class TaskViewSet(viewsets.ReadOnlyModelViewSet):
         if search:
             qs = qs.filter(name__icontains=search)
         return qs
+
+    def perform_create(self, serializer):
+        serializer.save()
+
+    def perform_update(self, serializer):
+        serializer.save()
 
     @action(detail=True, methods=['post'], permission_classes=[AllowAny])
     def run(self, request, pk=None):
@@ -120,6 +134,12 @@ class TaskViewSet(viewsets.ReadOnlyModelViewSet):
         }, status=status.HTTP_201_CREATED)
 
 
+class CategoryViewSet(viewsets.ModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = [IsAdminOrReadOnly]
+
+
 class SubmissionViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Submission.objects.none()
     serializer_class = SubmissionSerializer
@@ -129,7 +149,7 @@ class SubmissionViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class LeaderboardView(generics.ListAPIView):
-    serializer_class = UserSerializer
+    serializer_class = LeaderboardSerializer
 
     def get_queryset(self):
         return (

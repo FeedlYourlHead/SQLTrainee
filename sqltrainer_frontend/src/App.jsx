@@ -8,6 +8,7 @@ import TaskListPage from './pages/TaskListPage'
 import TaskDetailPage from './pages/TaskDetailPage'
 import ProfilePage from './pages/ProfilePage'
 import LeaderboardPage from './pages/LeaderboardPage'
+import ManageTasksPage from './pages/ManageTasksPage'
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
             <Route path="/problems" element={<TaskListPage />} />
             <Route path="/problems/:id" element={<TaskDetailPage />} />
             <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+            <Route path="/manage" element={<ProtectedRoute><ManageTasksPage /></ProtectedRoute>} />
             <Route path="/leaderboard" element={<LeaderboardPage />} />
           </Routes>
         </main>

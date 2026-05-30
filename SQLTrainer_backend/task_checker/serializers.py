@@ -6,7 +6,15 @@ from .models import Category, Task, Submission
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name']
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'is_staff']
+
+
+class LeaderboardSerializer(serializers.ModelSerializer):
+    solved_count = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'first_name', 'last_name', 'solved_count']
 
 
 class RegisterSerializer(serializers.ModelSerializer):

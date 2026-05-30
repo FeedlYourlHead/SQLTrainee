@@ -33,6 +33,18 @@ export default function NavBar() {
 
           {user ? (
             <div className="flex items-center gap-3">
+              {user.is_staff && (
+                <Link
+                  to="/manage"
+                  className={`text-sm font-medium transition ${
+                    pathname.startsWith('/manage')
+                      ? 'text-indigo-600'
+                      : 'text-gray-600 hover:text-indigo-600'
+                  }`}
+                >
+                  Управление
+                </Link>
+              )}
               <Link
                 to="/profile"
                 className="text-sm text-gray-600 hover:text-indigo-600 transition"
