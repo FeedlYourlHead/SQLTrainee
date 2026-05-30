@@ -1,15 +1,20 @@
-from django.core.management.base import BaseCommand
-from task_checker.models import Category, Task
+from django.db import migrations
 
-CATEGORIES = [
-    {'name': 'SELECT', 'description': 'Базовые SELECT запросы'},
-    {'name': 'JOIN', 'description': 'Запросы с объединением таблиц'},
-    {'name': 'GROUP BY', 'description': 'Агрегация и группировка данных'},
-]
+def seed_data(apps, schema_editor):
+    Category = apps.get_model('task_checker', 'Category')
+    Task = apps.get_model('task_checker', 'Task')
 
-TASKS = [
-    {
-        'name': 'Выбрать всех пользователей',
+    cat_select, _ = Category.objects.get_or_create(
+        name='SELECT', defaults={'description': 'Базовые SELECT запросы'}
+    )
+    cat_join, _ = Category.objects.get_or_create(
+        name='JOIN', defaults={'description': 'Запросы с объединением таблиц'}
+    )
+    cat_group, _ = Category.objects.get_or_create(
+        name='GROUP BY', defaults={'description': 'Агрегация и группировка данных'}
+    )
+
+    Task.objects.get_or_create(name='Выбрать всех пользователей', defaults={
         'description': (
             'В таблице **users** хранятся пользователи с полями:\n'
             '- `id` — уникальный идентификатор\n'
@@ -29,11 +34,11 @@ TASKS = [
             "    ('Виктор', 22);"
         ),
         'expected_query': 'SELECT * FROM users;',
-        'category_name': 'SELECT',
+        'category': cat_select,
         'difficulty': 1,
-    },
-    {
-        'name': 'Объединение заказов и клиентов',
+    })
+
+    Task.objects.get_or_create(name='Объединение заказов и клиентов', defaults={
         'description': (
             'Даны две таблицы:\n'
             '- **customers** (`id`, `name`)\n'
@@ -64,11 +69,11 @@ TASKS = [
             'FROM customers\n'
             'INNER JOIN orders ON customers.id = orders.customer_id;'
         ),
-        'category_name': 'JOIN',
+        'category': cat_join,
         'difficulty': 2,
-    },
-    {
-        'name': 'Количество заказов по клиентам',
+    })
+
+    Task.objects.get_or_create(name='Количество заказов по клиентам', defaults={
         'description': (
             'Используя таблицы **customers** и **orders** из предыдущей задачи,\n'
             'напиши запрос, который выведет имя клиента и **количество** его заказов.\n'
@@ -100,37 +105,23 @@ TASKS = [
             'LEFT JOIN orders ON customers.id = orders.customer_id\n'
             'GROUP BY customers.id, customers.name;'
         ),
-        'category_name': 'GROUP BY',
+        'category': cat_group,
         'difficulty': 3,
-    },
-]
+    })
 
 
-class Command(BaseCommand):
-    help = 'Заполняет БД тестовыми категориями и задачами'
+def unseed_data(apps, schema_editor):
+    Task = apps.get_model('task_checker', 'Task')
+    Category = apps.get_model('task_checker', 'Category')
+    Task.objects.all().delete()
+    Category.objects.all().delete()
 
-    def handle(self, *args, **options):
-        for cat_data in CATEGORIES:
-            Category.objects.get_or_create(
-                name=cat_data['name'],
-                defaults={'description': cat_data['description']}
-            )
-        self.stdout.write(self.style.SUCCESS(f'Создано {len(CATEGORIES)} категорий'))
 
-        created = 0
-        for task_data in TASKS:
-            category = Category.objects.get(name=task_data['category_name'])
-            _, was_created = Task.objects.get_or_create(
-                name=task_data['name'],
-                defaults={
-                    'description': task_data['description'],
-                    'schema_sql': task_data['schema_sql'],
-                    'expected_query': task_data['expected_query'],
-                    'category': category,
-                    'difficulty': task_data['difficulty'],
-                }
-            )
-            if was_created:
-                created += 1
+class Migration(migrations.Migration):
+    dependencies = [
+        ('task_checker', '0001_initial'),
+    ]
 
-        self.stdout.write(self.style.SUCCESS(f'Создано {created} задач'))
+    operations = [
+        migrations.RunPython(seed_data, unseed_data),
+    ]
