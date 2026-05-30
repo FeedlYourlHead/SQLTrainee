@@ -1,0 +1,42 @@
+
+services:
+  db:
+    image: postgres
+    environment:
+      POSTGRES_DB: sqltrainer
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+    ports:
+      - "5433:5432"
+    networks:
+      - sqltrain
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./SQLTrainer_backend
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - sqltrain
+
+  frontend:
+    build: ./sqltrainer_frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    networks:
+      - sqltrain
+    volumes:
+      - ./sqltrainer_frontend/src:/app/src
+
+networks:
+  sqltrain:
+
