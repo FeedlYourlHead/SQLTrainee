@@ -13,7 +13,7 @@ import ManageTasksPage from './pages/ManageTasksPage'
 function App() {
   return (
     <AuthProvider>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors">
         <NavBar />
         <main className="container mx-auto px-4 py-6">
           <Routes>

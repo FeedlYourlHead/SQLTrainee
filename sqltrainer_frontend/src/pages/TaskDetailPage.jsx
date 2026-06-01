@@ -3,9 +3,10 @@ import { useParams, Link } from 'react-router-dom'
 import Editor from '@monaco-editor/react'
 import { api } from '../api/client'
 import { useAuth } from '../context/AuthContext'
+import { useTheme } from '../context/ThemeContext'
 
 const difficultyLabel = ['', 'Easy', 'Medium', 'Hard']
-const difficultyColor = ['', 'text-green-600 bg-green-50', 'text-yellow-600 bg-yellow-50', 'text-red-600 bg-red-50']
+const difficultyColor = ['', 'text-green-600 bg-green-50 dark:text-green-400 dark:bg-green-900/30', 'text-yellow-600 bg-yellow-50 dark:text-yellow-400 dark:bg-yellow-900/30', 'text-red-600 bg-red-50 dark:text-red-400 dark:bg-red-900/30']
 
 function renderMarkdown(text) {
   return text
@@ -15,11 +16,11 @@ function renderMarkdown(text) {
         const items = block
           .split('\n')
           .filter((l) => l.startsWith('- '))
-          .map((l) => `<li>${l.slice(2).replace(/`([^`]+)`/g, '<code class="bg-gray-100 px-1 rounded text-sm">$1</code>')}</li>`)
+          .map((l) => `<li>${l.slice(2).replace(/`([^`]+)`/g, '<code class="bg-gray-100 dark:bg-gray-700 px-1 rounded text-sm">$1</code>')}</li>`)
         return `<ul class="list-disc pl-5 space-y-1">${items.join('')}</ul>`
       }
       const html = block
-        .replace(/`([^`]+)`/g, '<code class="bg-gray-100 px-1 rounded text-sm">$1</code>')
+        .replace(/`([^`]+)`/g, '<code class="bg-gray-100 dark:bg-gray-700 px-1 rounded text-sm">$1</code>')
         .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
         .replace(/\n/g, '<br>')
       return `<p class="mb-2">${html}</p>`
@@ -28,27 +29,27 @@ function renderMarkdown(text) {
 }
 
 function ResultTable({ columns, rows }) {
-  if (!columns || columns.length === 0) return <p className="text-gray-400 text-sm">Нет результатов</p>
+  if (!columns || columns.length === 0) return <p className="text-gray-400 dark:text-gray-500 text-sm">Нет результатов</p>
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-gray-200">
+          <tr className="border-b border-gray-200 dark:border-gray-700">
             {columns.map((col) => (
-              <th key={col} className="text-left font-semibold text-gray-700 pb-1 pr-4">{col}</th>
+              <th key={col} className="text-left font-semibold text-gray-700 dark:text-gray-300 pb-1 pr-4">{col}</th>
             ))}
           </tr>
         </thead>
         <tbody>
           {rows.map((row, i) => (
-            <tr key={i} className="border-b border-gray-100 last:border-0">
+            <tr key={i} className="border-b border-gray-100 dark:border-gray-800 last:border-0">
               {row.map((cell, j) => (
-                <td key={j} className="py-1 pr-4 text-gray-600">{cell === null ? 'NULL' : String(cell)}</td>
+                <td key={j} className="py-1 pr-4 text-gray-600 dark:text-gray-400">{cell === null ? 'NULL' : String(cell)}</td>
               ))}
             </tr>
           ))}
           {rows.length === 0 && (
-            <tr><td colSpan={columns.length} className="text-gray-400 text-sm py-2">Нет строк</td></tr>
+            <tr><td colSpan={columns.length} className="text-gray-400 dark:text-gray-500 text-sm py-2">Нет строк</td></tr>
           )}
         </tbody>
       </table>
@@ -59,6 +60,7 @@ function ResultTable({ columns, rows }) {
 export default function TaskDetailPage() {
   const { id } = useParams()
   const { user } = useAuth()
+  const { darkMode } = useTheme()
   const [task, setTask] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -122,43 +124,43 @@ export default function TaskDetailPage() {
     }
   }
 
-  if (loading) return <div className="text-center text-gray-400 pt-20">Загрузка...</div>
+  if (loading) return <div className="text-center text-gray-400 dark:text-gray-500 pt-20">Загрузка...</div>
   if (error) return <div className="text-center text-red-500 pt-20">{error}</div>
   if (!task) return null
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <div>
-        <Link to="/problems" className="text-sm text-indigo-600 hover:underline mb-3 inline-block">&larr; К списку</Link>
+        <Link to="/problems" className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline mb-3 inline-block">&larr; К списку</Link>
 
         <div className="flex items-center gap-3 mb-3">
-          <h1 className="text-2xl font-bold">{task.name}</h1>
+          <h1 className="text-2xl font-bold dark:text-gray-100">{task.name}</h1>
           <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${difficultyColor[task.difficulty]}`}>
             {difficultyLabel[task.difficulty]}
           </span>
         </div>
 
         {task.category && (
-          <span className="inline-block text-xs text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full mb-4">
+          <span className="inline-block text-xs text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-2 py-0.5 rounded-full mb-4">
             {task.category.name}
           </span>
         )}
 
         <div
-          className="prose prose-sm text-gray-700 mb-6"
+          className="prose prose-sm text-gray-700 dark:text-gray-300 mb-6"
           dangerouslySetInnerHTML={{ __html: renderMarkdown(task.description) }}
         />
 
-        <div className="rounded-lg bg-gray-50 border border-gray-200 p-4">
-          <h3 className="text-sm font-semibold text-gray-700 mb-2">Схема таблицы</h3>
-          <pre className="text-sm text-gray-600 overflow-x-auto whitespace-pre-wrap">{task.schema_sql}</pre>
+        <div className="rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4">
+          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Схема таблицы</h3>
+          <pre className="text-sm text-gray-600 dark:text-gray-400 overflow-x-auto whitespace-pre-wrap">{task.schema_sql}</pre>
         </div>
       </div>
 
       <div className="space-y-4">
-        <div className="rounded-lg border border-gray-200 overflow-hidden">
-          <div className="flex items-center justify-between bg-gray-50 px-4 py-2 border-b border-gray-200">
-            <span className="text-sm font-medium text-gray-700">SQL</span>
+        <div className="rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div className="flex items-center justify-between bg-gray-50 dark:bg-gray-800 px-4 py-2 border-b border-gray-200 dark:border-gray-700">
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">SQL</span>
             <div className="flex gap-2">
               <button
                 onClick={handleRun}
@@ -180,7 +182,7 @@ export default function TaskDetailPage() {
           <Editor
             height="200px"
             defaultLanguage="sql"
-            theme="vs-light"
+            theme={darkMode ? 'vs-dark' : 'vs-light'}
             value={query}
             onChange={(v) => setQuery(v || '')}
             options={{
@@ -194,30 +196,30 @@ export default function TaskDetailPage() {
         </div>
 
         {submission && (
-          <div className={`rounded-lg border p-4 ${submission.is_correct ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
+          <div className={`rounded-lg border p-4 ${submission.is_correct ? 'border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20' : 'border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20'}`}>
             <div className="flex items-center gap-2 mb-3">
               {submission.is_correct ? (
-                <span className="text-green-700 font-semibold text-sm">Верно!</span>
+                <span className="text-green-700 dark:text-green-400 font-semibold text-sm">Верно!</span>
               ) : (
-                <span className="text-red-700 font-semibold text-sm">Неверно</span>
+                <span className="text-red-700 dark:text-red-400 font-semibold text-sm">Неверно</span>
               )}
             </div>
 
             {submissionError && (
-              <pre className="text-sm text-red-600 whitespace-pre-wrap mb-3">{submissionError}</pre>
+              <pre className="text-sm text-red-600 dark:text-red-400 whitespace-pre-wrap mb-3">{submissionError}</pre>
             )}
 
             {!submission.is_correct && submissionResult && submissionExpected && (
               <div className="space-y-3">
                 <div>
-                  <h4 className="text-xs font-semibold text-gray-500 uppercase mb-1">Ваш результат</h4>
-                  <div className="bg-white rounded border border-red-200 p-2">
+                  <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1">Ваш результат</h4>
+                  <div className="bg-white dark:bg-gray-900 rounded border border-red-200 dark:border-red-800 p-2">
                     <ResultTable columns={submissionResult.columns} rows={submissionResult.rows} />
                   </div>
                 </div>
                 <div>
-                  <h4 className="text-xs font-semibold text-gray-500 uppercase mb-1">Ожидалось</h4>
-                  <div className="bg-white rounded border border-gray-200 p-2">
+                  <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1">Ожидалось</h4>
+                  <div className="bg-white dark:bg-gray-900 rounded border border-gray-200 dark:border-gray-700 p-2">
                     <ResultTable columns={submissionExpected.columns} rows={submissionExpected.rows} />
                   </div>
                 </div>
@@ -227,14 +229,14 @@ export default function TaskDetailPage() {
         )}
 
         {!submission && (
-          <div className="rounded-lg border border-gray-200 bg-white p-4 min-h-[150px]">
-            <h3 className="text-sm font-semibold text-gray-700 mb-2">Результат</h3>
+          <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4 min-h-[150px]">
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Результат</h3>
             {resultError && (
-              <pre className="text-sm text-red-600 whitespace-pre-wrap">{resultError}</pre>
+              <pre className="text-sm text-red-600 dark:text-red-400 whitespace-pre-wrap">{resultError}</pre>
             )}
             {result && !resultError && <ResultTable columns={result.columns} rows={result.rows} />}
             {!result && !resultError && (
-              <p className="text-gray-400 text-sm">Нажмите Run для выполнения запроса или Submit для проверки</p>
+              <p className="text-gray-400 dark:text-gray-500 text-sm">Нажмите Run для выполнения запроса или Submit для проверки</p>
             )}
           </div>
         )}
