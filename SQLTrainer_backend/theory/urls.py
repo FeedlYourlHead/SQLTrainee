@@ -7,4 +7,5 @@ router.register(r'articles', views.ArticleViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('upload-image/', views.upload_image, name='upload-image'),
 ]

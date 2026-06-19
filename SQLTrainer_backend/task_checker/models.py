@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+
 class Category(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
@@ -23,6 +24,13 @@ class Task(models.Model):
     difficulty = models.PositiveIntegerField(default=1)
     is_published = models.BooleanField(default=True)
     hints = models.JSONField(default=list, blank=True)
+    verification_query = models.TextField(
+        blank=True,
+        help_text="SELECT-запрос для проверки DDL/DML задач (выполняется после запроса пользователя)"
+    )
+    related_articles = models.ManyToManyField(
+        'theory.Article', blank=True, related_name='related_tasks'
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

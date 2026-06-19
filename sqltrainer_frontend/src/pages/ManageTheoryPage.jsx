@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import { api } from '../api/client'
+import { api, getAccessToken } from '../api/client'
 
 const empty = { title: '', content: '', category_id: null, order: 0 }
 
@@ -14,6 +14,9 @@ export default function ManageTheoryPage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [preview, setPreview] = useState(false)
+  const [uploading, setUploading] = useState(false)
+  const fileRef = useRef(null)
+  const textRef = useRef(null)
 
   const load = () => Promise.all([
     api.get('/articles/'),
@@ -52,11 +55,37 @@ export default function ManageTheoryPage() {
 
   const remove = async (id) => {
     if (!confirm('Удалить статью?')) return
+    setError('')
     try {
       await api.delete(`/articles/${id}/`)
       await load()
     } catch (err) {
       setError(err.message)
+    }
+  }
+
+  const handleUpload = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploading(true)
+    setError('')
+    try {
+      const fd = new FormData()
+      fd.append('image', file)
+      const res = await fetch('/api/upload-image/', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${getAccessToken()}` },
+        body: fd,
+      })
+      if (!res.ok) throw new Error('Ошибка загрузки')
+      const data = await res.json()
+      const markdown = `![${file.name}](${data.url})`
+      setForm((prev) => ({ ...prev, content: prev.content + '\n' + markdown }))
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setUploading(false)
+      if (fileRef.current) fileRef.current.value = ''
     }
   }
 
@@ -107,6 +136,16 @@ export default function ManageTheoryPage() {
                   className={`text-xs font-medium px-3 py-1.5 rounded-lg transition ${preview ? 'bg-indigo-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'}`}
                 >
                   Предпросмотр
+                </button>
+                <div className="w-px h-4 bg-gray-300 dark:bg-gray-600 mx-1" />
+                <input type="file" accept="image/*" ref={fileRef} onChange={handleUpload} className="hidden" />
+                <button
+                  type="button"
+                  onClick={() => fileRef.current?.click()}
+                  disabled={uploading}
+                  className="text-xs font-medium px-3 py-1.5 rounded-lg transition bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50"
+                >
+                  {uploading ? 'Загрузка...' : 'Загрузить изображение'}
                 </button>
               </div>
               {preview ? (

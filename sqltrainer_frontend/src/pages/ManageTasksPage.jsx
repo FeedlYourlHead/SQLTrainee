@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { api } from '../api/client'
 
-const empty = { name: '', description: '', expected_query: '', schema_sql: '', category_id: 1, difficulty: 1, is_published: true, hints: [] }
+const empty = { name: '', description: '', expected_query: '', schema_sql: '', category_id: 1, difficulty: 1, is_published: true, hints: [], related_article_ids: [], verification_query: '' }
 
 const hintsToText = (hints) => (hints || []).join('\n')
 const textToHints = (text) => text.split('\n').filter((l) => l.trim())
@@ -9,26 +9,29 @@ const textToHints = (text) => text.split('\n').filter((l) => l.trim())
 export default function ManageTasksPage() {
   const [tasks, setTasks] = useState([])
   const [categories, setCategories] = useState([])
+  const [articles, setArticles] = useState([])
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(null)
   const [form, setForm] = useState(empty)
   const [saving, setSaving] = useState(false)
+  const [articleSearch, setArticleSearch] = useState('')
   const [error, setError] = useState('')
 
   const load = () => Promise.all([
     api.get('/problems/'),
     api.get('/categories/'),
-  ]).then(([t, c]) => { setTasks(t); setCategories(c) })
+    api.get('/articles/'),
+  ]).then(([t, c, a]) => { setTasks(t); setCategories(c); setArticles(a) })
 
   useEffect(() => { load().finally(() => setLoading(false)) }, [])
 
-  const openNew = () => { setEditing('new'); setForm(empty); setError('') }
+  const openNew = () => { setEditing('new'); setForm(empty); setError(''); setArticleSearch('') }
   const openEdit = (t) => {
     setEditing(t.id)
-    setForm({ name: t.name, description: t.description, expected_query: t.expected_query || '', schema_sql: t.schema_sql || '', category_id: t.category?.id || 1, difficulty: t.difficulty, is_published: t.is_published, hints: t.hints || [] })
+    setForm({ name: t.name, description: t.description, expected_query: t.expected_query || '', schema_sql: t.schema_sql || '', category_id: t.category?.id || 1, difficulty: t.difficulty, is_published: t.is_published, hints: t.hints || [], related_article_ids: t.related_articles || [], verification_query: t.verification_query || '' })
     setError('')
   }
-  const cancel = () => { setEditing(null); setForm(empty); setError('') }
+  const cancel = () => { setEditing(null); setForm(empty); setError(''); setArticleSearch('') }
 
   const save = async () => {
     setSaving(true)
@@ -50,6 +53,7 @@ export default function ManageTasksPage() {
 
   const remove = async (id) => {
     if (!confirm('Удалить задачу?')) return
+    setError('')
     try {
       await api.delete(`/problems/${id}/`)
       await load()
@@ -106,6 +110,10 @@ export default function ManageTasksPage() {
               <textarea rows={2} className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm font-mono text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500" value={form.expected_query} onChange={(e) =>     setForm({...form, expected_query: e.target.value})} />
             </div>
             <div>
+              <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Проверочный запрос (для DDL/DML)</label>
+              <textarea rows={2} className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm font-mono text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500" value={form.verification_query} onChange={(e) => setForm({...form, verification_query: e.target.value})} />
+            </div>
+            <div>
               <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Подсказки (по одной на строке)</label>
               <textarea
                 rows={3}
@@ -113,6 +121,36 @@ export default function ManageTasksPage() {
                 value={hintsToText(form.hints)}
                 onChange={(e) => setForm({...form, hints: textToHints(e.target.value)})}
               />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Связанные статьи</label>
+              <input
+                type="text"
+                placeholder="Поиск статей..."
+                value={articleSearch}
+                onChange={(e) => setArticleSearch(e.target.value)}
+                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-2"
+              />
+              <select
+                multiple
+                value={form.related_article_ids.map(String)}
+                onChange={(e) => {
+                  const selected = Array.from(e.target.options)
+                    .filter((o) => o.selected)
+                    .map((o) => Number(o.value))
+                  setForm({...form, related_article_ids: selected})
+                }}
+                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 min-h-[100px]"
+              >
+                {articles
+                  .filter((a) => a.title.toLowerCase().includes(articleSearch.toLowerCase()))
+                  .map((a) => (
+                    <option key={a.id} value={a.id}>{a.title}</option>
+                  ))}
+              </select>
+              {articles.length === 0 && (
+                <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">Нет статей</p>
+              )}
             </div>
             <div className="flex items-center gap-2">
               <input

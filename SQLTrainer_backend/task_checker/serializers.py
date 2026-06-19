@@ -1,6 +1,13 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from .models import Category, Task, Submission
+from theory.models import Article
+
+
+class ArticleSummarySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Article
+        fields = ['id', 'title']
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -44,12 +51,18 @@ class TaskSerializer(serializers.ModelSerializer):
     category_id = serializers.PrimaryKeyRelatedField(
         queryset=Category.objects.all(), source='category', write_only=True
     )
+    related_articles = ArticleSummarySerializer(many=True, read_only=True)
+    related_article_ids = serializers.PrimaryKeyRelatedField(
+        queryset=Article.objects.all(), source='related_articles',
+        many=True, write_only=True, required=False
+    )
 
     class Meta:
         model = Task
         fields = [
             'id', 'name', 'description', 'expected_query', 'schema_sql',
-            'category', 'category_id', 'difficulty', 'is_published', 'hints', 'created_at',
+            'category', 'category_id', 'difficulty', 'is_published', 'hints',
+            'related_article_ids', 'related_articles', 'verification_query', 'created_at',
         ]
         read_only_fields = ['created_at']
 
@@ -59,7 +72,7 @@ class TaskListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Task
-        fields = ['id', 'name', 'description', 'category', 'difficulty', 'is_published', 'created_at']
+        fields = ['id', 'name', 'description', 'category', 'difficulty', 'is_published', 'related_articles', 'verification_query', 'created_at']
 
 
 class SubmissionSerializer(serializers.ModelSerializer):

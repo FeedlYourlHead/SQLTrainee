@@ -109,7 +109,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         user_query = serializer.validated_data['user_query']
         try:
-            columns, rows = execute_query(task.schema_sql, user_query)
+            columns, rows = execute_query(task.schema_sql, user_query, task.verification_query)
             return Response({'columns': columns, 'rows': rows})
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
@@ -121,7 +121,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         user_query = serializer.validated_data['user_query']
         is_correct, user_result, expected_result, error_message = check_query(
-            task.schema_sql, user_query, task.expected_query
+            task.schema_sql, user_query, task.expected_query, task.verification_query
         )
         submission = Submission.objects.create(
             user=request.user,

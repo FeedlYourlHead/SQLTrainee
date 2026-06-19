@@ -158,6 +158,23 @@ export default function TaskDetailPage() {
           <pre className="text-sm text-gray-600 dark:text-gray-400 overflow-x-auto whitespace-pre-wrap">{task.schema_sql}</pre>
         </div>
 
+        {task.related_articles?.length > 0 && (
+          <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4 mt-4">
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Связанные статьи</h3>
+            <div className="space-y-1">
+              {task.related_articles.map((art) => (
+                <Link
+                  key={art.id}
+                  to={`/theory/${art.id}`}
+                  className="block text-sm text-indigo-600 dark:text-indigo-400 hover:underline"
+                >
+                  {art.title}
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
         {task.hints?.length > 0 && (
           <div className="rounded-lg border border-yellow-200 dark:border-yellow-700 bg-yellow-50 dark:bg-yellow-900/20 p-4 mt-4">
             <h3 className="text-sm font-semibold text-yellow-700 dark:text-yellow-400 mb-2">Подсказки</h3>

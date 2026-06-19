@@ -57,6 +57,25 @@ export default function TheoryDetailPage() {
             {article.content}
           </ReactMarkdown>
         </div>
+
+        {article.related_tasks?.length > 0 && (
+          <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+            <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">
+              Связанные задачи
+            </h2>
+            <div className="space-y-2">
+              {article.related_tasks.map((t) => (
+                <Link
+                  key={t.id}
+                  to={`/problems/${t.id}`}
+                  className="block text-sm text-indigo-600 dark:text-indigo-400 hover:underline"
+                >
+                  {t.name}
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
       </article>
     </div>
   )

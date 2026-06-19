@@ -14,7 +14,18 @@ def _get_connection_params():
     }
 
 
-def execute_query(schema_sql, query, timeout=5000):
+def _fetch_results(cur):
+    if cur.description is None:
+        return [], []
+    columns = [desc[0] for desc in cur.description]
+    try:
+        rows = [list(row) for row in cur.fetchall()]
+    except psycopg2.ProgrammingError:
+        rows = []
+    return columns, rows
+
+
+def execute_query(schema_sql, query, verification_query=None, timeout=5000):
     conn = psycopg2.connect(**_get_connection_params())
     conn.autocommit = True
     cur = conn.cursor()
@@ -26,9 +37,9 @@ def execute_query(schema_sql, query, timeout=5000):
 
         cur.execute(schema_sql)
         cur.execute(query)
-
-        columns = [desc[0] for desc in cur.description] if cur.description else []
-        rows = [list(row) for row in cur.fetchall()]
+        if verification_query:
+            cur.execute(verification_query)
+        columns, rows = _fetch_results(cur)
         return columns, rows
     except Exception:
         raise
@@ -38,14 +49,14 @@ def execute_query(schema_sql, query, timeout=5000):
         conn.close()
 
 
-def check_query(schema_sql, user_query, expected_query, timeout=5000):
+def check_query(schema_sql, user_query, expected_query, verification_query=None, timeout=5000):
     try:
-        user_cols, user_rows = execute_query(schema_sql, user_query, timeout)
+        user_cols, user_rows = execute_query(schema_sql, user_query, verification_query, timeout)
     except Exception as e:
         return False, None, None, str(e)
 
     try:
-        exp_cols, exp_rows = execute_query(schema_sql, expected_query, timeout)
+        exp_cols, exp_rows = execute_query(schema_sql, expected_query, verification_query, timeout)
     except Exception as e:
         return False, None, None, f"Error in expected query: {e}"
 

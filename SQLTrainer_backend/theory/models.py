@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 from task_checker.models import Category
 
 
@@ -17,3 +18,14 @@ class Article(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class UploadedImage(models.Model):
+    image = models.ImageField(upload_to='uploads/')
+    uploaded_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return str(self.image)

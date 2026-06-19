@@ -38,6 +38,7 @@ async function request(endpoint, options = {}) {
     throw new Error(message)
   }
 
+  if (res.status === 204) return null
   return res.json()
 }
 
