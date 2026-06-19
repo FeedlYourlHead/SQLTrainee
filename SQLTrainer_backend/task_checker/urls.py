@@ -16,7 +16,6 @@ urlpatterns = [
     path('auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('users/me/', views.UserViewSet.as_view({'get': 'me'}), name='current-user'),
     path('leaderboard/', views.LeaderboardView.as_view(), name='leaderboard'),
-    path('theory/', views.theory_list, name='theory-list'),
     path('progress/', views.user_progress, name='user-progress'),
     path('problems/<int:problem_id>/comments/', views.problem_comments, name='problem-comments'),
     path('problems/<int:problem_id>/hints/', views.problem_hints, name='problem-hints'),

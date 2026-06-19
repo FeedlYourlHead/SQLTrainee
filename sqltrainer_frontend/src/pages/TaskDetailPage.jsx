@@ -73,12 +73,14 @@ export default function TaskDetailPage() {
   const [submissionResult, setSubmissionResult] = useState(null)
   const [submissionExpected, setSubmissionExpected] = useState(null)
   const [submissionError, setSubmissionError] = useState('')
+  const [hintsRevealed, setHintsRevealed] = useState(0)
 
   useEffect(() => {
     setLoading(true)
     setError('')
     setResult(null)
     setSubmission(null)
+    setHintsRevealed(0)
     api.get(`/problems/${id}/`)
       .then((t) => {
         setTask(t)
@@ -155,6 +157,28 @@ export default function TaskDetailPage() {
           <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Схема таблицы</h3>
           <pre className="text-sm text-gray-600 dark:text-gray-400 overflow-x-auto whitespace-pre-wrap">{task.schema_sql}</pre>
         </div>
+
+        {task.hints?.length > 0 && (
+          <div className="rounded-lg border border-yellow-200 dark:border-yellow-700 bg-yellow-50 dark:bg-yellow-900/20 p-4 mt-4">
+            <h3 className="text-sm font-semibold text-yellow-700 dark:text-yellow-400 mb-2">Подсказки</h3>
+            <div className="space-y-2">
+              {task.hints.slice(0, hintsRevealed).map((hint, i) => (
+                <p key={i} className="text-sm text-yellow-800 dark:text-yellow-200">{hint}</p>
+              ))}
+              {hintsRevealed < task.hints.length && (
+                <button
+                  onClick={() => setHintsRevealed((prev) => prev + 1)}
+                  className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline"
+                >
+                  Показать подсказку {hintsRevealed + 1}
+                </button>
+              )}
+              {hintsRevealed === task.hints.length && (
+                <p className="text-xs text-yellow-600 dark:text-yellow-500">Все подсказки показаны</p>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="space-y-4">

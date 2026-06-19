@@ -21,6 +21,8 @@ class Task(models.Model):
         Category, on_delete=models.SET_NULL, null=True, related_name='tasks'
     )
     difficulty = models.PositiveIntegerField(default=1)
+    is_published = models.BooleanField(default=True)
+    hints = models.JSONField(default=list, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

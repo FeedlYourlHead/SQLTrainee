@@ -82,6 +82,9 @@ class TaskViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         qs = Task.objects.select_related('category')
+        user = self.request.user
+        if not user.is_authenticated or not user.is_staff:
+            qs = qs.filter(is_published=True)
         difficulty = self.request.query_params.get('difficulty')
         category_id = self.request.query_params.get('category_id')
         search = self.request.query_params.get('search')
@@ -111,7 +114,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=True, methods=['post'])
+    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
     def submit(self, request, pk=None):
         task = self.get_object()
         serializer = SubmissionCreateSerializer(data=request.data)
@@ -170,14 +173,11 @@ def problem_comments(request, problem_id):
 
 @api_view(['GET'])
 def problem_hints(request, problem_id):
-    return Response({'hints': [], 'problem_id': problem_id})
-
-
-@api_view(['GET'])
-@permission_classes([AllowAny])
-def theory_list(request):
-    return Response({'articles': [], 'message': 'Theory articles not implemented yet'})
-
+    try:
+        task = Task.objects.get(id=problem_id)
+        return Response({'hints': task.hints, 'problem_id': problem_id})
+    except Task.DoesNotExist:
+        return Response({'error': 'Task not found'}, status=404)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])

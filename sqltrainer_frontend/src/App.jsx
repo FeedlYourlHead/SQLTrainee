@@ -9,6 +9,10 @@ import TaskDetailPage from './pages/TaskDetailPage'
 import ProfilePage from './pages/ProfilePage'
 import LeaderboardPage from './pages/LeaderboardPage'
 import ManageTasksPage from './pages/ManageTasksPage'
+import SubmissionsPage from './pages/SubmissionsPage'
+import TheoryListPage from './pages/TheoryListPage'
+import TheoryDetailPage from './pages/TheoryDetailPage'
+import ManageTheoryPage from './pages/ManageTheoryPage'
 
 function App() {
   return (
@@ -22,8 +26,12 @@ function App() {
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/problems" element={<TaskListPage />} />
             <Route path="/problems/:id" element={<TaskDetailPage />} />
+            <Route path="/theory" element={<TheoryListPage />} />
+            <Route path="/theory/:id" element={<TheoryDetailPage />} />
             <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
             <Route path="/manage" element={<ProtectedRoute><ManageTasksPage /></ProtectedRoute>} />
+            <Route path="/manage-theory" element={<ProtectedRoute><ManageTheoryPage /></ProtectedRoute>} />
+            <Route path="/submissions" element={<ProtectedRoute><SubmissionsPage /></ProtectedRoute>} />
             <Route path="/leaderboard" element={<LeaderboardPage />} />
           </Routes>
         </main>

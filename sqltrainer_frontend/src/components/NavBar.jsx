@@ -4,6 +4,7 @@ import { useTheme } from '../context/ThemeContext'
 
 const navLinks = [
   { to: '/problems', label: 'Задачи' },
+  { to: '/theory', label: 'Теория' },
   { to: '/leaderboard', label: 'Лидерборд' },
 ]
 
@@ -51,17 +52,39 @@ export default function NavBar() {
 
           {user ? (
             <div className="flex items-center gap-3">
+              <Link
+                to="/submissions"
+                className={`text-sm font-medium transition ${
+                  pathname.startsWith('/submissions')
+                    ? 'text-indigo-600 dark:text-indigo-400'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400'
+                }`}
+              >
+                Мои отправки
+              </Link>
               {user.is_staff && (
-                <Link
-                  to="/manage"
-                  className={`text-sm font-medium transition ${
-                    pathname.startsWith('/manage')
-                      ? 'text-indigo-600 dark:text-indigo-400'
-                      : 'text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400'
-                  }`}
-                >
-                  Управление
-                </Link>
+                <div className="flex items-center gap-3">
+                  <Link
+                    to="/manage"
+                    className={`text-sm font-medium transition ${
+                      pathname === '/manage'
+                        ? 'text-indigo-600 dark:text-indigo-400'
+                        : 'text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400'
+                    }`}
+                  >
+                    Задачи
+                  </Link>
+                  <Link
+                    to="/manage-theory"
+                    className={`text-sm font-medium transition ${
+                      pathname === '/manage-theory'
+                        ? 'text-indigo-600 dark:text-indigo-400'
+                        : 'text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400'
+                    }`}
+                  >
+                    Теория
+                  </Link>
+                </div>
               )}
               <Link
                 to="/profile"

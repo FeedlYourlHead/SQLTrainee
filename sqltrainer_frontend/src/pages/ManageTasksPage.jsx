@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react'
 import { api } from '../api/client'
 
-const empty = { name: '', description: '', expected_query: '', schema_sql: '', category_id: 1, difficulty: 1 }
+const empty = { name: '', description: '', expected_query: '', schema_sql: '', category_id: 1, difficulty: 1, is_published: true, hints: [] }
+
+const hintsToText = (hints) => (hints || []).join('\n')
+const textToHints = (text) => text.split('\n').filter((l) => l.trim())
 
 export default function ManageTasksPage() {
   const [tasks, setTasks] = useState([])
@@ -22,7 +25,7 @@ export default function ManageTasksPage() {
   const openNew = () => { setEditing('new'); setForm(empty); setError('') }
   const openEdit = (t) => {
     setEditing(t.id)
-    setForm({ name: t.name, description: t.description, expected_query: t.expected_query || '', schema_sql: t.schema_sql || '', category_id: t.category?.id || 1, difficulty: t.difficulty })
+    setForm({ name: t.name, description: t.description, expected_query: t.expected_query || '', schema_sql: t.schema_sql || '', category_id: t.category?.id || 1, difficulty: t.difficulty, is_published: t.is_published, hints: t.hints || [] })
     setError('')
   }
   const cancel = () => { setEditing(null); setForm(empty); setError('') }
@@ -100,7 +103,26 @@ export default function ManageTasksPage() {
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Ожидаемый запрос</label>
-              <textarea rows={2} className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm font-mono text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500" value={form.expected_query} onChange={(e) => setForm({...form, expected_query: e.target.value})} />
+              <textarea rows={2} className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm font-mono text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500" value={form.expected_query} onChange={(e) =>     setForm({...form, expected_query: e.target.value})} />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Подсказки (по одной на строке)</label>
+              <textarea
+                rows={3}
+                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                value={hintsToText(form.hints)}
+                onChange={(e) => setForm({...form, hints: textToHints(e.target.value)})}
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="is_published"
+                className="rounded border-gray-300 dark:border-gray-600 text-indigo-600 focus:ring-indigo-500"
+                checked={form.is_published}
+                onChange={(e) => setForm({...form, is_published: e.target.checked})}
+              />
+              <label htmlFor="is_published" className="text-sm text-gray-700 dark:text-gray-300">Опубликовано</label>
             </div>
             <div className="flex gap-2 pt-2">
               <button onClick={save} disabled={saving} className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition disabled:opacity-50">{saving ? 'Сохранение...' : 'Сохранить'}</button>
@@ -118,6 +140,7 @@ export default function ManageTasksPage() {
               <th className="text-left font-semibold text-gray-500 dark:text-gray-400 px-4 py-3">Название</th>
               <th className="text-left font-semibold text-gray-500 dark:text-gray-400 px-4 py-3">Категория</th>
               <th className="text-left font-semibold text-gray-500 dark:text-gray-400 px-4 py-3">Сложность</th>
+              <th className="text-left font-semibold text-gray-500 dark:text-gray-400 px-4 py-3">Статус</th>
               <th className="text-right font-semibold text-gray-500 dark:text-gray-400 px-4 py-3">Действия</th>
             </tr>
           </thead>
@@ -132,6 +155,11 @@ export default function ManageTasksPage() {
                     {['', 'Easy', 'Medium', 'Hard'][t.difficulty]}
                   </span>
                 </td>
+                <td className="px-4 py-3">
+                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${t.is_published ? 'text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/30' : 'text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800'}`}>
+                    {t.is_published ? 'Опубликовано' : 'Черновик'}
+                  </span>
+                </td>
                 <td className="px-4 py-3 text-right">
                   <button onClick={() => openEdit(t)} className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline mr-3">Ред.</button>
                   <button onClick={() => remove(t.id)} className="text-sm text-red-500 dark:text-red-400 hover:underline">Удал.</button>
@@ -139,7 +167,7 @@ export default function ManageTasksPage() {
               </tr>
             ))}
             {tasks.length === 0 && (
-              <tr><td colSpan={5} className="text-center text-gray-400 dark:text-gray-500 py-10">Нет задач</td></tr>
+              <tr><td colSpan={6} className="text-center text-gray-400 dark:text-gray-500 py-10">Нет задач</td></tr>
             )}
           </tbody>
         </table>

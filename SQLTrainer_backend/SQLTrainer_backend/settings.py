@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'SQLTrainer_backend',
     'corsheaders',
     'rest_framework',
-    'task_checker'
+    'task_checker',
+    'theory'
 ]
 
 MIDDLEWARE = [
