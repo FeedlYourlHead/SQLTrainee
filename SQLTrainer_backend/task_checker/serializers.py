@@ -72,7 +72,7 @@ class TaskListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Task
-        fields = ['id', 'name', 'description', 'category', 'difficulty', 'is_published', 'related_articles', 'verification_query', 'created_at']
+        fields = ['id', 'name', 'description', 'expected_query', 'schema_sql', 'category', 'difficulty', 'is_published', 'hints', 'related_articles', 'verification_query', 'created_at']
 
 
 class SubmissionSerializer(serializers.ModelSerializer):
