@@ -120,12 +120,6 @@ def seed_data(apps, schema_editor):
         ),
         'category': cat_ddl,
         'difficulty': 2,
-        'verification_query': (
-            "SELECT column_name, data_type, is_nullable "
-            "FROM information_schema.columns "
-            "WHERE table_name = 'students' "
-            "ORDER BY ordinal_position"
-        ),
     })
 
     Task.objects.get_or_create(name='Добавить столбец email', defaults={
@@ -151,12 +145,6 @@ def seed_data(apps, schema_editor):
         ),
         'category': cat_ddl,
         'difficulty': 1,
-        'verification_query': (
-            "SELECT column_name, data_type "
-            "FROM information_schema.columns "
-            "WHERE table_name = 'employees' "
-            "ORDER BY ordinal_position"
-        ),
     })
 
     Task.objects.get_or_create(name='Добавить нового сотрудника', defaults={
@@ -186,7 +174,6 @@ def seed_data(apps, schema_editor):
         ),
         'category': cat_dml,
         'difficulty': 1,
-        'verification_query': "SELECT * FROM employees ORDER BY id",
     })
 
     Task.objects.get_or_create(name='Повысить зарплату всем разработчикам', defaults={
@@ -216,7 +203,6 @@ def seed_data(apps, schema_editor):
         ),
         'category': cat_dml,
         'difficulty': 2,
-        'verification_query': "SELECT * FROM employees ORDER BY id",
     })
 
     Task.objects.get_or_create(name='Удалить товары с нулевым остатком', defaults={
@@ -243,7 +229,6 @@ def seed_data(apps, schema_editor):
         ),
         'category': cat_dml,
         'difficulty': 1,
-        'verification_query': "SELECT * FROM products ORDER BY id",
     })
 
     Task.objects.get_or_create(name='Сотрудники с зарплатой выше средней', defaults={
