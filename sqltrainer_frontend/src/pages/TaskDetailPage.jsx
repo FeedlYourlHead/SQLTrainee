@@ -4,6 +4,7 @@ import Editor from '@monaco-editor/react'
 import { api } from '../api/client'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
+import SchemaDiagram from '../components/SchemaDiagram'
 
 const difficultyLabel = ['', 'Easy', 'Medium', 'Hard']
 const difficultyColor = ['', 'text-green-600 bg-green-50 dark:text-green-400 dark:bg-green-900/30', 'text-yellow-600 bg-yellow-50 dark:text-yellow-400 dark:bg-yellow-900/30', 'text-red-600 bg-red-50 dark:text-red-400 dark:bg-red-900/30']
@@ -153,10 +154,7 @@ export default function TaskDetailPage() {
           dangerouslySetInnerHTML={{ __html: renderMarkdown(task.description) }}
         />
 
-        <div className="rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4">
-          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Схема таблицы</h3>
-          <pre className="text-sm text-gray-600 dark:text-gray-400 overflow-x-auto whitespace-pre-wrap">{task.schema_sql}</pre>
-        </div>
+        <SchemaDiagram ddl={task.schema_sql} />
 
         {task.related_articles?.length > 0 && (
           <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4 mt-4">

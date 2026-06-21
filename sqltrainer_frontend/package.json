@@ -10,9 +10,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@dagrejs/dagre": "^3.0.0",
     "@monaco-editor/react": "^4.7.0",
     "@tailwindcss/typography": "^0.5.20",
     "@tailwindcss/vite": "^4.3.0",
+    "@xyflow/react": "^12.11.0",
     "monaco-editor": "^0.55.1",
     "monaco-sql-languages": "^1.0.0",
     "react": "^19.2.4",

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '../api/client'
+import SchemaBuilder from '../components/SchemaBuilder'
 
 const empty = { name: '', description: '', expected_query: '', schema_sql: '', category_id: 1, difficulty: 1, is_published: true, hints: [], related_article_ids: [], verification_query: '' }
 
@@ -103,7 +104,7 @@ export default function ManageTasksPage() {
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">SQL схема</label>
-              <textarea rows={4} className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm font-mono text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500" value={form.schema_sql} onChange={(e) => setForm({...form, schema_sql: e.target.value})} />
+              <SchemaBuilder value={form.schema_sql} onChange={(sql) => setForm({...form, schema_sql: sql})} />
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Ожидаемый запрос</label>
