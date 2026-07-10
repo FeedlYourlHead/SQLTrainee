@@ -1,9 +1,13 @@
+import os
 import requests, json
 
 BASE = 'http://backend:8000/api'
 
+ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME', 'admin')
+ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'admin123')
+
 # Login
-r = requests.post(f'{BASE}/auth/login/', json={'username': 'admin', 'password': 'admin123'})
+r = requests.post(f'{BASE}/auth/login/', json={'username': ADMIN_USERNAME, 'password': ADMIN_PASSWORD})
 token = r.json()['access']
 headers = {'Authorization': f'Bearer {token}', 'Content-Type': 'application/json'}
 

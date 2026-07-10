@@ -278,7 +278,7 @@ function EditableTableNode({ data }) {
               className="text-gray-300 dark:text-gray-600 hover:text-red-400 text-sm leading-none flex-shrink-0"
               title="Delete column"
               onClick={() => onDeleteColumn(table.id, col.id)}
-            >\u00d7</button>
+            >x</button>
           </div>
         ))}
       </div>
@@ -311,7 +311,7 @@ function EditableTableNode({ data }) {
                   className="text-gray-300 dark:text-gray-600 hover:text-red-400 text-sm leading-none flex-shrink-0 ml-auto"
                   title="Delete row"
                   onClick={() => onDeleteRow(table.id, row.id)}
-                >\u00d7</button>
+                >x</button>
               </div>
             ))}
             <button

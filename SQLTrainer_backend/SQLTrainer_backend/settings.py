@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -20,10 +21,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-=h*26qthg%n(8meyvxnlej(qu9hxq9zq%42u&cg%l=ayto^_lm'
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-fallback-dev-key-change-me')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = ['*']
 
@@ -81,20 +82,20 @@ WSGI_APPLICATION = 'SQLTrainer_backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'sqltrainer',
-        'USER': 'postgres',
-        'HOST': 'db',
-        'PORT': '5432',
-        'PASSWORD': '1234',
+        'NAME': os.environ.get('POSTGRES_DB', 'sqltrainer'),
+        'USER': os.environ.get('POSTGRES_USER', 'postgres'),
+        'HOST': os.environ.get('DB_HOST', 'db'),
+        'PORT': os.environ.get('DB_PORT', '5432'),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD', '1234'),
     }
 }
 
 SANDBOX_DATABASE = {
-    'dbname': 'sqltrainer',
-    'user': 'postgres',
-    'password': '1234',
-    'host': 'db',
-    'port': '5432',
+    'dbname': os.environ.get('POSTGRES_DB', 'sqltrainer'),
+    'user': os.environ.get('POSTGRES_USER', 'postgres'),
+    'password': os.environ.get('POSTGRES_PASSWORD', '1234'),
+    'host': os.environ.get('DB_HOST', 'db'),
+    'port': os.environ.get('DB_PORT', '5432'),
 }
 
 

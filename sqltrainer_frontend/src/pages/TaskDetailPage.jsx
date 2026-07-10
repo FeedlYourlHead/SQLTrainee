@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import Editor from '@monaco-editor/react'
 import { api } from '../api/client'
@@ -65,7 +65,8 @@ export default function TaskDetailPage() {
   const [task, setTask] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [query, setQuery] = useState('')
+  const editorRef = useRef(null)
+  const [defaultQuery, setDefaultQuery] = useState('')
   const [running, setRunning] = useState(false)
   const [result, setResult] = useState(null)
   const [resultError, setResultError] = useState('')
@@ -85,18 +86,20 @@ export default function TaskDetailPage() {
     api.get(`/problems/${id}/`)
       .then((t) => {
         setTask(t)
-        setQuery(t.expected_query || '')
+        setDefaultQuery('')
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false))
   }, [id])
+
+  const getQuery = () => editorRef.current?.getValue() || ''
 
   const handleRun = async () => {
     setRunning(true)
     setResult(null)
     setResultError('')
     try {
-      const data = await api.post(`/problems/${id}/run/`, { user_query: query })
+      const data = await api.post(`/problems/${id}/run/`, { user_query: getQuery() })
       if (data.error) {
         setResultError(data.error)
       } else {
@@ -116,7 +119,7 @@ export default function TaskDetailPage() {
     setSubmissionExpected(null)
     setSubmissionError('')
     try {
-      const data = await api.post(`/problems/${id}/submit/`, { user_query: query })
+      const data = await api.post(`/problems/${id}/submit/`, { user_query: getQuery() })
       setSubmission(data.submission)
       setSubmissionResult(data.result)
       setSubmissionExpected(data.expected)
@@ -219,11 +222,12 @@ export default function TaskDetailPage() {
             </div>
           </div>
           <Editor
+            key={id}
             height="200px"
             defaultLanguage="sql"
             theme={darkMode ? 'vs-dark' : 'vs-light'}
-            value={query}
-            onChange={(v) => setQuery(v || '')}
+            defaultValue={defaultQuery}
+            onMount={(editor) => { editorRef.current = editor }}
             options={{
               minimap: { enabled: false },
               fontSize: 13,
